@@ -3,7 +3,7 @@
 
 📋 Overview
 
-A production-level web application that intelligently matches candidate CVs with Job Descriptions using advanced AI and NLP techniques. Originally developed at Genesiis Software using Gemini 1.5 Flash (paid version), the system now features intelligent model fallback to work within free quota limits while maintaining high accuracy.
+A production-level web application that intelligently matches candidate CVs with Job Descriptions using advanced AI and NLP techniques. Originally developed at Genesiis Software using Gemini 2.5 Flash (paid version), the system now features intelligent model fallback to work within free quota limits while maintaining high accuracy.
 
 Developed during my internship at Genesiis Software for Topjobs (Sri Lanka's leading recruitment platform), this tool automates recruitment workflows by providing accurate candidate-job matching scores with detailed insights.
 
@@ -23,7 +23,7 @@ Developed during my internship at Genesiis Software for Topjobs (Sri Lanka's lea
 
 - Frontend - Streamlit
 - Backend - Python
-- AI/ML Models - Gemini 2.5 Flash Lite, Gemma 3 27B, Gemini 1.5 Flash (legacy), all-MiniLM-L6-v2, e5-base-v2
+- AI/ML Models - Gemini 2.5 Flash Lite, Gemma 3 27B, Gemini 2.5 Flash (legacy), all-MiniLM-L6-v2, e5-base-v2
 - Document Processing - PyPDF2, OCR libraries
 - Version Control - Git, GitHub
 - Project Management - JIRA
@@ -42,7 +42,7 @@ User Input (CV/Resume + Job Description)
 - Gemini 2.5 Flash Lite (primary - 20 RPD)
 - Fallback Chain:
    - Gemma 3 27B (14,400 RPD - unlimited free tier)
-   - Gemini 1.5 Flash (legacy support)
+   - Gemini 2.5 Flash (legacy support)
    - all-MiniLM-L6-v2 / e5-base-v2 (local fallback)
 - Contextual understanding
 - Multi-modal parsing
@@ -67,7 +67,7 @@ The system employs a default weighted scoring algorithm:
  - Experience: 20% - Years and relevance of work experience
 
 Model Evolution:
--Phase 1 (Internship - Paid): Gemini 1.5 Flash for production deployment at Topjobs
+-Phase 1 (Internship - Paid): Gemini 2.5 Flash for production deployment at Topjobs
 -Phase 2 (Current - Free Quota): Multi-model fallback system with Gemma 3 27B handling 14,400 requests/day
 -Benefits of current architecture:
  - Better contextual understanding of nuanced requirements
@@ -183,7 +183,7 @@ Via Streamlit Interface
 This project was developed during my internship at Genesiis Software for Topjobs.
 
 📌 **Development Note:** 
-This project was initially developed during my internship at Genesiis Software using Gemini 1.5 Flash (paid version) for Topjobs. The current version has been enhanced with intelligent model fallback to work within free quota limits while maintaining the same level of accuracy and functionality.
+This project was initially developed during my internship at Genesiis Software using Gemini 2.5 Flash (paid version) for Topjobs. The current version has been enhanced with intelligent model fallback to work within free quota limits while maintaining the same level of accuracy and functionality.
 
 📧 Contact
 
