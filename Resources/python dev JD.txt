@@ -1,0 +1,16 @@
+
+We are looking for
+Senior Python Full Stack Developer
+•
+• 8+ years of in-depth industry experience with Python Experience building LLM applications (prompts,
+function/tool calling, basic RAG, structured outputs, simple evals/regression tests)
+Use of Al-assisted development tools in daily workflows (e.g., Cursor, JetBrains Al)
+·
+Strong knowledge of APIs (REST, SOAP)
+·
+In-depth understanding of microservice architecture
+Experience with Python frameworks such as FastAPI, LangChain, LangFlow, and scikit-learn
+If you think you're the right
+fit for the job
+Apply now!
+digital team
