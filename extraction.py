@@ -2183,7 +2183,18 @@
 # elif st.button("Run Analysis"):
 #     st.error("Please upload a resume PDF and provide a job description.")
 
-# the new application with all features 
+
+
+
+
+
+# ✅ CURRENT WORKING VERSION:
+#   - Model: gemma-3-27b-it (Free tier, 14,400 requests/day)
+#   - Input: Upload CV as TXT file only, JD as text input. because now with the free tier --> gemma-3-27b-it. this is a text based model only. cannot work with images, pdfs
+#
+# 🔄 PREVIOUS VERSION (Internship): the above commented code
+#   - Model: Gemini 2.5 Flash (Paid version)
+#   - Features: Full PDF/image support with Gemini vision
 
 import streamlit as st
 import google.generativeai as genai       
@@ -4377,3 +4388,4 @@ if uploaded_file and jd:
 
 elif st.button("Run Analysis"):
     st.error("Please upload a resume PDF and provide a job description.")
+
