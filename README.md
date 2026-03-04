@@ -193,4 +193,5 @@ This project was initially developed during my internship at Genesiis Software u
 ⭐ If you find this project useful, please consider giving it a star on GitHub!
 
 **Demo Video:** 
-https://github.com/user-attachments/assets/201fb3d4-187a-40f9-aeca-37421f7c52eb
+
+https://github.com/user-attachments/assets/8143bb4f-3baf-411a-ae5d-2ae8077d10bd
