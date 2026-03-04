@@ -41,9 +41,9 @@ User Input (CV/Resume + Job Description)
 [AI Analysis Layer]
 - Gemini 2.5 Flash Lite (primary - 20 RPD)
 - Fallback Chain:
-  ├── Gemma 3 27B (14,400 RPD - unlimited free tier)
-  ├── Gemini 1.5 Flash (legacy support)
-  └── all-MiniLM-L6-v2 / e5-base-v2 (local fallback)
+   - Gemma 3 27B (14,400 RPD - unlimited free tier)
+   - Gemini 1.5 Flash (legacy support)
+   - all-MiniLM-L6-v2 / e5-base-v2 (local fallback)
 - Contextual understanding
 - Multi-modal parsing
         ↓
@@ -61,10 +61,10 @@ User Input (CV/Resume + Job Description)
 
 📊 Scoring Methodology
 
-The system employs a weighted scoring algorithm:
- - Skills Match: 40% - Technical and soft skills alignment
- - Education: 25% - Degree level, field of study relevance
- - Experience: 35% - Years and relevance of work experience
+The system employs a default weighted scoring algorithm:
+ - Skills Match: 50% - Technical and soft skills alignment
+ - Education: 30% - Degree level, field of study relevance
+ - Experience: 20% - Years and relevance of work experience
 
 Model Evolution:
 -Phase 1 (Internship - Paid): Gemini 1.5 Flash for production deployment at Topjobs
@@ -156,10 +156,10 @@ Via Streamlit Interface
 🔄 Development Workflow
 
 - Followed Agile methodology with:
-- Sprint planning in JIRA
-- Daily standups
-- Code reviews via GitHub
-- Iterative development with stakeholder feedback
+        - Sprint planning in JIRA
+        - Daily standups
+        - Code reviews via GitHub
+        - Iterative development with stakeholder feedback
 
 🏆 Key Achievements
 
@@ -172,8 +172,7 @@ Via Streamlit Interface
 
 🔮 Future Enhancements
 
-Add support for more document formats (DOCX, RTF)
-
+- Add support for more document formats (DOCX, RTF)
 - Implement batch processing for multiple CVs
 - Add candidate ranking dashboard
 - Add more language model options
