@@ -189,8 +189,8 @@ This project was initially developed during my internship at Genesiis Software u
 
 - Email: thrimanna2000@gmail.com
 - LinkedIn: https://www.linkedin.com/in/anuji-thrimanna-6389392a9/
-  
-**Demo Video:** 
-https://github.com/user-attachments/assets/201fb3d4-187a-40f9-aeca-37421f7c52eb
 
 ⭐ If you find this project useful, please consider giving it a star on GitHub!
+
+**Demo Video:** 
+https://github.com/user-attachments/assets/201fb3d4-187a-40f9-aeca-37421f7c52eb
