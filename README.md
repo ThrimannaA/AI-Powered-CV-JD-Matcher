@@ -182,12 +182,15 @@ Via Streamlit Interface
 
 This project was developed during my internship at Genesiis Software for Topjobs.
 
-📌 **Development Note:** 
+📌 Development Note:
 This project was initially developed during my internship at Genesiis Software using Gemini 2.5 Flash (paid version) for Topjobs. The current version has been enhanced with intelligent model fallback to work within free quota limits while maintaining the same level of accuracy and functionality.
 
 📧 Contact
 
 - Email: thrimanna2000@gmail.com
 - LinkedIn: https://www.linkedin.com/in/anuji-thrimanna-6389392a9/
+  
+**Demo Video:** 
+https://github.com/user-attachments/assets/201fb3d4-187a-40f9-aeca-37421f7c52eb
 
 ⭐ If you find this project useful, please consider giving it a star on GitHub!
