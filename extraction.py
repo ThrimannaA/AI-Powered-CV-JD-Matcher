@@ -1,7 +1,5 @@
-# the new application with all features 
-
 import streamlit as st
-from google import genai               # ← changed import
+import google.generativeai as genai
 import os
 import io
 import json
@@ -11,51 +9,166 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import re
 import logging
-from typing import Optional
+from typing import Optional, Tuple, Dict, Any
 from PIL import Image
 from pdf2image import convert_from_bytes
-import traceback
+import requests
+import base64
 
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# Load environment variables
 load_dotenv()
 
-
-client = genai.Client()  # automatically uses GOOGLE_API_KEY from env
-
-def get_gemini_response(input_text: str, image=None):
+# Configure Vertex AI or Gemini API
+def configure_vertex_ai():
+    """Configure Gemini API for Vertex AI"""
     try:
-        contents = [input_text]
-        if image is not None:
-            contents.append(image)
-
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=contents,
-            config=genai.types.GenerateContentConfig(
-                temperature=0.0,
-            )
-        )
-
-        text = response.text.strip()
-
-        # Keep your original post-processing
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1].rsplit("\n", 1)[0].strip()
-        text = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', text)
-        text = re.sub(r',\s*([\}\]])', r'\1', text)
-
-        return text
-
+        # Set environment variable to use Vertex AI
+        os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
+        
+        # Set project and location environment variables
+        project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "tj-gemini-project")
+        location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+        
+        # Clean the location value to remove any extra text
+        location = location.strip().split()[0]  # Take only the first word (e.g., "us-central1" from "us-central1 (lowa)")
+        
+        os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
+        os.environ["GOOGLE_CLOUD_LOCATION"] = location
+        
+        # For Vertex AI, we need to use service account credentials or OAuth2
+        # Since you have an API key, let's try a different approach
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY environment variable not set")
+        
+        # Configure with your Vertex AI API key
+        genai.configure(api_key=api_key)
+        print("✅ Vertex AI configuration successful")
     except Exception as e:
-        logger.error(f"Gemini SDK error: {e}")
+        print(f"❌ Error configuring Vertex AI: {e}")
+        raise
+
+# Initialize Vertex AI configuration
+configure_vertex_ai()
+
+# Direct Vertex AI API function
+def get_vertex_ai_response(input_text, image=None):
+    """Get response from Vertex AI using direct HTTP requests"""
+    try:
+        api_key = os.getenv("GOOGLE_API_KEY")
+        project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "tj-gemini-project")
+        location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+        
+        # Clean the location value
+        location = location.strip().split()[0]
+        
+        # Construct the Vertex AI endpoint URL
+        url = f"https://{location}-aiplatform.googleapis.com/v1/projects/{project_id}/locations/{location}/publishers/google/models/gemini-2.5-flash:streamGenerateContent?key={api_key}"
+        
+        # Prepare the request payload
+        payload = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "text": input_text
+                        }
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.0
+            }
+        }
+        
+        # If image is provided, add it to the parts
+        if image:
+            buffer = io.BytesIO()
+            image.save(buffer, format='PNG')
+            image_base64 = base64.b64encode(buffer.getvalue()).decode()
+            payload["contents"][0]["parts"].append({
+                "inline_data": {
+                    "mime_type": "image/png",
+                    "data": image_base64
+                }
+            })
+        
+        response = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Handle streaming response (list of chunks)
+            if isinstance(result, list):
+                full_text = ""
+                for chunk in result:
+                    if "candidates" in chunk and len(chunk["candidates"]) > 0:
+                        candidate = chunk["candidates"][0]
+                        if "content" in candidate and "parts" in candidate["content"]:
+                            for part in candidate["content"]["parts"]:
+                                if "text" in part:
+                                    full_text += part["text"]
+                
+                if full_text.strip():
+                    # Clean the combined text
+                    full_text = full_text.strip()
+                    # Remove code block markers if present
+                    if full_text.startswith('```'):
+                        full_text = full_text[7:].rstrip('```').strip()
+                    elif full_text.startswith('```'):
+                        full_text = full_text[3:].rstrip('```').strip()
+                    # Remove invalid control characters
+                    full_text = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', full_text)
+                    # Remove trailing commas
+                    full_text = re.sub(r',\s*([\]\}])', r'\1', full_text)
+                    # Fix newlines in keys
+                    full_text = re.sub(r'\n\s*"([^"]+)"', r'"\1"', full_text)
+                    return full_text
+                else:
+                    logger.error("No text found in streaming response")
+                    return None
+            
+            # Handle single response
+            elif isinstance(result, dict) and "candidates" in result and len(result["candidates"]) > 0:
+                candidate = result["candidates"][0]
+                if "content" in candidate and "parts" in candidate["content"]:
+                    content = candidate["content"]["parts"][0]["text"]
+                    # Clean the content
+                    content = content.strip()
+                    if content.startswith('```'):
+                        content = content[7:].rstrip('```').strip()
+                    elif content.startswith('```'):
+                        content = content[3:].rstrip('```').strip()
+                    content = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', content)
+                    content = re.sub(r',\s*([\]\}])', r'\1', content)
+                    content = re.sub(r'\n\s*"([^"]+)"', r'"\1"', content)
+                    return content
+                else:
+                    logger.error("No content found in single response")
+                    return None
+            else:
+                logger.error("No valid response format found")
+                return None
+        else:
+            logger.error(f"API request failed: {response.status_code} - {response.text}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error with Vertex AI request: {e}")
         return None
-    
     
 # --- Helper Functions ---
 def get_today_date():
@@ -91,59 +204,58 @@ def increment_request_count():
     conn.close()
     logger.info("Request count incremented successfully")
 
-# def get_gemini_response(input_text, image=None):
-#     try:
-#         response_text = get_gemini_response(input_text, image)
-#         if response_text:
-#             return response_text
-#         else:
-#             logger.error("No valid response from Vertex AI")
-#             return None
-#     except Exception as e:
-#         logger.error(f"Error with Vertex AI request: {e}")
-#         return None
+def get_gemini_response(input_text, image=None):
+    try:
+        response_text = get_vertex_ai_response(input_text, image)
+        if response_text:
+            return response_text
+        else:
+            logger.error("No valid response from Vertex AI")
+            return None
+    except Exception as e:
+        logger.error(f"Error with Vertex AI request: {e}")
+        return None
 
 def input_file_text(uploaded_file):
-    # ────────────────────────────────────────────────
-    # Your original function – kept exactly the same
-    # except using the new get_gemini_response
-    # ────────────────────────────────────────────────
     try:
         file_extension = uploaded_file.name.split('.')[-1].lower()
         print(f"🔍 Processing file with extension: {file_extension}")
         print(f"🔍 File name: {uploaded_file.name}")
         print(f"🔍 File size: {uploaded_file.size} bytes")
-
+        
         prompt = ("Extract all text from this document accurately. Preserve formatting, line breaks, and structure as much as possible. "
                   "Handle mixed languages (e.g., English, Tamil, Sinhala) correctly. Return plain text.")
-
+        
         if file_extension == 'pdf':
-            print("🔍 Processing PDF file with pdf2image + Gemini")
+            print("🔍 Processing PDF file with pdf2image + Vertex AI")
+            from pdf2image import convert_from_bytes
             poppler_path = r"C:\Poppler\poppler-25.07.0\Library\bin"
-
+            
             try:
                 images = convert_from_bytes(uploaded_file.getvalue(), poppler_path=poppler_path)
                 extracted_text = ""
                 for i, image in enumerate(images):
                     print(f"🔍 Processing page {i+1}")
-                    response_text = get_gemini_response(prompt, image)
+                    # Use Vertex AI for text extraction from images
+                    response_text = get_vertex_ai_response(prompt, image)
                     if response_text:
                         extracted_text += response_text + "\n"
                         print(f"🔍 Page {i+1} extracted: {len(response_text)} characters")
                     else:
                         print(f"❌ Failed to extract text from page {i+1}")
-                        fallback_response = get_gemini_response("Extract text from this image:", image)
+                        # Fallback: Try OCR with different prompt
+                        fallback_response = get_vertex_ai_response("Extract text from this image:", image)
                         if fallback_response:
                             extracted_text += fallback_response + "\n"
                             print(f"🔍 Page {i+1} fallback extracted: {len(fallback_response)} characters")
-
+                
                 if not extracted_text.strip():
-                    print("❌ No text extracted from PDF")
+                    print("❌ No text extracted from PDF, trying alternative approach")
                     return ""
-
+                    
                 print(f"✅ Successfully extracted {len(extracted_text)} characters from PDF")
                 return normalize_text(extracted_text)
-
+                
             except Exception as e:
                 print(f"❌ PDF processing error: {e}")
                 return ""
@@ -158,7 +270,7 @@ def input_file_text(uploaded_file):
                 
                 # Use Vertex AI for text cleaning and enhancement
                 enhanced_prompt = f"{prompt}\n\nDocument text to process:\n{raw_text}"
-                response_text = get_gemini_response(enhanced_prompt)
+                response_text = get_vertex_ai_response(enhanced_prompt)
                 extracted_text = response_text if response_text else raw_text
                 
                 return normalize_text(extracted_text)
@@ -176,7 +288,7 @@ def input_file_text(uploaded_file):
                 
                 # Use Vertex AI for text cleaning and enhancement
                 enhanced_prompt = f"{prompt}\n\nDocument text to process:\n{raw_text}"
-                response_text = get_gemini_response(enhanced_prompt)
+                response_text = get_vertex_ai_response(enhanced_prompt)
                 extracted_text = response_text if response_text else raw_text
                 
                 return normalize_text(extracted_text)
@@ -193,7 +305,7 @@ def input_file_text(uploaded_file):
                 
                 # Use Vertex AI for text cleaning and enhancement
                 enhanced_prompt = f"{prompt}\n\nDocument text to process:\n{raw_text}"
-                response_text = get_gemini_response(enhanced_prompt)
+                response_text = get_vertex_ai_response(enhanced_prompt)
                 extracted_text = response_text if response_text else raw_text
                 
                 return normalize_text(extracted_text)
@@ -215,7 +327,7 @@ def input_file_text(uploaded_file):
                 
                 # Use Vertex AI for text cleaning and enhancement
                 enhanced_prompt = f"{prompt}\n\nDocument text to process:\n{raw_text}"
-                response_text = get_gemini_response(enhanced_prompt)
+                response_text = get_vertex_ai_response(enhanced_prompt)
                 extracted_text = response_text if response_text else raw_text
                 
                 return normalize_text(extracted_text)
@@ -233,6 +345,7 @@ def input_file_text(uploaded_file):
             
     except Exception as e:
         print(f"❌ Error in input_file_text: {e}")
+        import traceback
         traceback.print_exc()
         return ""
 
@@ -249,7 +362,7 @@ def extract_text_from_image(image):
         prompt = "Extract all the text from this image accurately. Preserve formatting, line breaks, and structure as much as possible."
         
         # Use the new Vertex AI function instead of the Google Generative AI library
-        response_text = get_gemini_response(prompt, image)
+        response_text = get_vertex_ai_response(prompt, image)
         
         if response_text:
             return response_text
@@ -949,7 +1062,7 @@ def get_gemini_model_response(input_text):
     model_name = "gemini-2.5-flash"
     try:
         # Use the new Vertex AI function instead of the Google Generative AI library
-        response_text = get_gemini_response(input_text)
+        response_text = get_vertex_ai_response(input_text)
         
         if response_text:
             return f"{model_name}"
@@ -1489,8 +1602,6 @@ with col2:
         for idx, jd_image in enumerate(jd_images, 1):
             st.write(f"File {idx}: {repr(jd_image.name)}")
 
-jd = jd_text.strip()
-
 # Process JD input
 jd = ""
 if jd_images:
@@ -1524,7 +1635,8 @@ if jd_images:
 
     if extracted_texts:
         # Combine all extracted texts with a separator, mimicking original behavior
-        jd = "\n---\n".join([text.strip() for text in extracted_texts if text.strip()])  # or append to existing jd        logger.info(f"Combined {len(extracted_texts)} image texts into JD: {len(jd)} characters")
+        jd = "\n---\n".join([text.strip() for text in extracted_texts if text.strip()])
+        logger.info(f"Combined {len(extracted_texts)} image texts into JD: {len(jd)} characters")
 
 # NEW: Detect JD language and translate to English if not English
 if jd:
@@ -2068,7 +2180,3 @@ if uploaded_file and jd:
 
 elif st.button("Run Analysis"):
     st.error("Please upload a resume PDF and provide a job description.")
-
-
-
-
