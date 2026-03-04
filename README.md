@@ -3,14 +3,14 @@
 
 📋 Overview
 
-A production-level web application that intelligently matches candidate CVs with Job Descriptions using advanced AI and NLP techniques. The system evolved from using Small Language Models (SLMs) to leveraging Google's Gemini 1.5 Flash for superior contextual understanding and multi-modal parsing capabilities.
+A production-level web application that intelligently matches candidate CVs with Job Descriptions using advanced AI and NLP techniques. Originally developed at Genesiis Software using Gemini 1.5 Flash (paid version), the system now features intelligent model fallback to work within free quota limits while maintaining high accuracy.
 
 Developed during my internship at Genesiis Software for Topjobs (Sri Lanka's leading recruitment platform), this tool automates recruitment workflows by providing accurate candidate-job matching scores with detailed insights.
 
 ✨ Key Features
 
 - Multi-format Input Support: Process PDFs, scanned images, and direct text inputs
-- AI-Powered Analysis: Leverages Gemini 1.5 Flash for advanced contextual understanding
+- AI-Powered Analysis: Leverages multiple AI models with intelligent fallback (Gemini 2.5 Flash Lite, Gemma 3 27B) for advanced contextual understanding within free quota limits
 - Weighted Scoring System: Customizable scoring for:
 - Skills match
 - Education alignment
@@ -23,7 +23,7 @@ Developed during my internship at Genesiis Software for Topjobs (Sri Lanka's lea
 
 - Frontend - Streamlit
 - Backend - Python
-- AI/ML Models - Gemini 1.5 Flash, all-MiniLM-L6-v2, e5-base-v2
+- AI/ML Models - Gemini 2.5 Flash Lite, Gemma 3 27B, Gemini 1.5 Flash (legacy), all-MiniLM-L6-v2, e5-base-v2
 - Document Processing - PyPDF2, OCR libraries
 - Version Control - Git, GitHub
 - Project Management - JIRA
@@ -39,8 +39,11 @@ User Input (CV/Resume + Job Description)
 - Text extraction & cleaning
         ↓
 [AI Analysis Layer]
-- Gemini 1.5 Flash (primary)
-- Fallback: all-MiniLM-L6-v2 / e5-base-v2
+- Gemini 2.5 Flash Lite (primary - 20 RPD)
+- Fallback Chain:
+  ├── Gemma 3 27B (14,400 RPD - unlimited free tier)
+  ├── Gemini 1.5 Flash (legacy support)
+  └── all-MiniLM-L6-v2 / e5-base-v2 (local fallback)
 - Contextual understanding
 - Multi-modal parsing
         ↓
@@ -63,7 +66,10 @@ The system employs a weighted scoring algorithm:
  - Education: 25% - Degree level, field of study relevance
  - Experience: 35% - Years and relevance of work experience
 
-Upgrade Path: The tool was upgraded from pure SLM-based matching (all-MiniLM-L6-v2, e5-base-v2) to Gemini 1.5 Flash for:
+Model Evolution:
+-Phase 1 (Internship - Paid): Gemini 1.5 Flash for production deployment at Topjobs
+-Phase 2 (Current - Free Quota): Multi-model fallback system with Gemma 3 27B handling 14,400 requests/day
+-Benefits of current architecture:
  - Better contextual understanding of nuanced requirements
  - Improved accuracy with varied document formats
  - Enhanced multi-modal parsing capabilities
@@ -81,6 +87,11 @@ Steps
 - Set up environment variables
 - Run the application via streamlit run extraction.py
 
+📌 Note on Model Configuration:
+The app now features intelligent model fallback to work within free quota limits:
+- Primary: Gemini 2.5 Flash Lite (20 requests/day)
+- Fallback: Gemma 3 27B (14,400 requests/day - effectively unlimited)
+No API key configuration needed for Gemma models - they work with the same Gemini API key!
 
 💡 Usage Examples
 
@@ -153,7 +164,8 @@ Via Streamlit Interface
 🏆 Key Achievements
 
 - Successfully deployed for Topjobs recruitment platform
-- Improved matching accuracy with Gemini 1.5 Flash upgrade
+- Improved matching accuracy with Gemini models during paid internship phase
+- Implemented intelligent model fallback system to work within free quota limits (14,400 requests/day with Gemma 3 27B)
 - Reduced manual CV screening time by approximately 70%
 - Handled 100+ CVs during testing phase
 - Received positive feedback during the testing phase
@@ -170,6 +182,9 @@ Add support for more document formats (DOCX, RTF)
 📝 License
 
 This project was developed during my internship at Genesiis Software for Topjobs.
+
+📌 **Development Note:** 
+This project was initially developed during my internship at Genesiis Software using Gemini 1.5 Flash (paid version) for Topjobs. The current version has been enhanced with intelligent model fallback to work within free quota limits while maintaining the same level of accuracy and functionality.
 
 📧 Contact
 
