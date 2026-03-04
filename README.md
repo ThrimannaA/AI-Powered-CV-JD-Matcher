@@ -21,13 +21,13 @@ Developed during my internship at Genesiis Software for Topjobs (Sri Lanka's lea
 
 🛠️ Technology Stack
 
-Frontend - Streamlit
-Backend - Python
-AI/ML Models - Gemini 1.5 Flash, all-MiniLM-L6-v2, e5-base-v2
-Document Processing - PyPDF2, OCR libraries
-Version Control - Git, GitHub
-Project Management - JIRA
-Deployment - Streamlit Cloud
+- Frontend - Streamlit
+- Backend - Python
+- AI/ML Models - Gemini 1.5 Flash, all-MiniLM-L6-v2, e5-base-v2
+- Document Processing - PyPDF2, OCR libraries
+- Version Control - Git, GitHub
+- Project Management - JIRA
+- Deployment - Streamlit Cloud
 
 🏗️ Architecture
 
@@ -152,11 +152,11 @@ Via Streamlit Interface
 
 🏆 Key Achievements
 
-✅ Successfully deployed for Topjobs recruitment platform
-✅ Improved matching accuracy with Gemini 1.5 Flash upgrade
-✅ Reduced manual CV screening time by approximately 70%
-✅ Handled 100+ CVs during testing phase
-✅ Received positive feedback during the testing phase
+- Successfully deployed for Topjobs recruitment platform
+- Improved matching accuracy with Gemini 1.5 Flash upgrade
+- Reduced manual CV screening time by approximately 70%
+- Handled 100+ CVs during testing phase
+- Received positive feedback during the testing phase
 
 🔮 Future Enhancements
 
@@ -173,8 +173,7 @@ This project was developed during my internship at Genesiis Software for Topjobs
 
 📧 Contact
 
-Anuji Thrimanna
-Email: thrimanna2000@gmail.com
-LinkedIn: https://www.linkedin.com/in/anuji-thrimanna-6389392a9/
+- Email: thrimanna2000@gmail.com
+- LinkedIn: https://www.linkedin.com/in/anuji-thrimanna-6389392a9/
 
 ⭐ If you find this project useful, please consider giving it a star on GitHub!
