@@ -2,11 +2,13 @@
 
 
 📋 Overview
+
 A production-level web application that intelligently matches candidate CVs with Job Descriptions using advanced AI and NLP techniques. The system evolved from using Small Language Models (SLMs) to leveraging Google's Gemini 1.5 Flash for superior contextual understanding and multi-modal parsing capabilities.
 
 Developed during my internship at Genesiis Software for Topjobs (Sri Lanka's leading recruitment platform), this tool automates recruitment workflows by providing accurate candidate-job matching scores with detailed insights.
 
 ✨ Key Features
+
 Multi-format Input Support: Process PDFs, scanned images, and direct text inputs
 
 AI-Powered Analysis: Leverages Gemini 1.5 Flash for advanced contextual understanding
